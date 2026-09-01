@@ -1,0 +1,6 @@
+{
+  "name": "Construtor de Currículos",
+  "description": "Uma plataforma inteligente para criar currículos profissionais otimizados. Inclui templates avançados e importação de documentos via IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
