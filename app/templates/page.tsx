@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Crown } from 'lucide-react';
+import { ArrowLeft, Crown, ArrowRight, Sparkles } from 'lucide-react';
 import { templates } from '@/domain/template/registry';
 import { resumeRepository } from '@/services/storage/resumeRepository';
 import { ResumeDocument } from '@/types/resume';
@@ -183,28 +183,43 @@ export default function TemplatesPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredTemplates.map(template => (
-            <div key={template.id} className="group bg-white rounded-2xl overflow-hidden border shadow-sm hover:shadow-md transition-all">
+            <div 
+              key={template.id} 
+              onClick={() => handleUseTemplate(template.id)}
+              className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-xs hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer flex flex-col active:scale-[0.98]"
+            >
               <div className="w-full relative overflow-hidden bg-gray-100">
                 <TemplatePreview templateId={template.id} />
                 
                 {template.isPremium && (
-                  <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                  <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm z-10">
                     <Crown size={12} /> Pro
                   </div>
                 )}
                 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <button 
-                    onClick={() => handleUseTemplate(template.id)}
-                    className="bg-white text-gray-900 px-6 py-3 rounded-xl font-semibold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform"
-                  >
-                    Usar template
-                  </button>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center">
+                  <span className="bg-white text-gray-900 px-5 py-2.5 rounded-xl font-semibold shadow-lg text-sm flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                    <Sparkles size={16} className="text-blue-600" />
+                    Usar este modelo
+                  </span>
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-gray-900">{template.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{template.category}</p>
+              <div className="p-4 flex items-center justify-between gap-3 bg-white border-t border-gray-100 mt-auto">
+                <div className="min-w-0">
+                  <h3 className="font-bold text-gray-900 truncate">{template.name}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{template.category}</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUseTemplate(template.id);
+                  }}
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-1.5 shrink-0"
+                >
+                  <span>Usar</span>
+                  <ArrowRight size={13} />
+                </button>
               </div>
             </div>
           ))}

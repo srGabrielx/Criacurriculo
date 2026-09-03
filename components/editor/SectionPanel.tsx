@@ -41,6 +41,9 @@ export function SectionPanel() {
     };
     addSection(newSection);
     selectSection(newSection.id);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      useEditorStore.getState().setMobileTab('properties');
+    }
     setShowAddMenu(false);
   };
 
@@ -95,7 +98,12 @@ export function SectionPanel() {
       
       <div className="p-3 flex flex-col gap-1 overflow-y-auto flex-1">
         <div 
-          onClick={() => selectSection('personalInfo')}
+          onClick={() => {
+            selectSection('personalInfo');
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+              useEditorStore.getState().setMobileTab('properties');
+            }
+          }}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${selectedSectionId === 'personalInfo' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
         >
           <User size={16} className={selectedSectionId === 'personalInfo' ? 'text-blue-600' : 'text-gray-400'} />
@@ -112,7 +120,12 @@ export function SectionPanel() {
                       <div 
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        onClick={() => selectSection(section.id)}
+                        onClick={() => {
+                          selectSection(section.id);
+                          if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                            useEditorStore.getState().setMobileTab('properties');
+                          }
+                        }}
                         className={`flex items-center gap-1.5 px-2 py-2.5 rounded-lg cursor-pointer transition-colors group ${selectedSectionId === section.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
                       >
                         <div {...provided.dragHandleProps} className="text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600 p-1 rounded">

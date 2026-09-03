@@ -331,21 +331,45 @@ export default function DashboardPage() {
                   <div className="p-4 flex flex-col flex-1">
                     <h3 className="font-semibold text-gray-900 truncate" title={doc.title}>{doc.title}</h3>
                     <p className="text-xs text-gray-500 mt-1 truncate">{template?.name || 'Template Desconhecido'}</p>
-                    <div className="mt-auto pt-4 flex items-center justify-between text-xs text-gray-400">
-                      <span>Atualizado em {new Date(doc.updatedAt).toLocaleDateString()}</span>
+                    <div className="mt-auto pt-4 flex items-center justify-between gap-2 border-t border-gray-100">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/editor/${doc.id}`);
+                        }}
+                        className="flex-1 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Edit2 size={13} />
+                        <span>Editar</span>
+                      </button>
                       <button 
                         type="button"
                         onClick={(e) => openDeleteModal(e, doc)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                         title="Excluir currículo"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
                 </div>
               );
             })}
+
+            {/* Card para Adicionar Novo Currículo na grade */}
+            <Link
+              href="/templates"
+              className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3 bg-white/60 hover:bg-blue-50/30 transition-all min-h-[340px] group cursor-pointer shadow-2xs hover:shadow-md"
+            >
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 group-hover:scale-110 flex items-center justify-center transition-transform shadow-xs">
+                <Plus size={24} />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Criar Novo Currículo</p>
+                <p className="text-xs text-gray-500 mt-1">Escolha entre modelos profissionais</p>
+              </div>
+            </Link>
           </div>
         )}
       </div>

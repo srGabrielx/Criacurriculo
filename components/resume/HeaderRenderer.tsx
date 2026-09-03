@@ -45,6 +45,9 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
           if(previewMode) return;
           e.stopPropagation(); 
           selectSection('personalInfo'); 
+          if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            useEditorStore.getState().setMobileTab('properties');
+          }
         }}
       >
         {!template.layout.hidePhoto && personalInfo.photo && (
@@ -167,6 +170,9 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
         if(previewMode) return;
         e.stopPropagation(); 
         selectSection('personalInfo'); 
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          useEditorStore.getState().setMobileTab('properties');
+        }
       }}
     >
       {!template.layout.hidePhoto && personalInfo.photo && (

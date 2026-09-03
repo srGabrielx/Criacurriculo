@@ -38,10 +38,43 @@ export function PropertiesPanel() {
   
   const mounted = useMounted();
 
-  if (!document || !selectedSectionId || !mounted) {
+  if (!document || !mounted) {
+    return null;
+  }
+
+  if (!selectedSectionId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-400 p-6 text-center">
-        <p className="text-sm">Selecione um elemento no currículo para editar suas propriedades.</p>
+      <div className="flex flex-col gap-4 p-2">
+        <div className="text-center py-2 border-b border-gray-100">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Escolha uma seção para editar</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => selectSection('personalInfo')}
+            className="w-full text-left p-3 rounded-xl border border-gray-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all flex items-center justify-between group"
+          >
+            <div>
+              <p className="font-semibold text-sm text-gray-900 group-hover:text-blue-600">Dados Pessoais</p>
+              <p className="text-xs text-gray-500 mt-0.5">Nome, foto, contatos e links</p>
+            </div>
+            <ArrowLeft size={16} className="text-gray-400 group-hover:text-blue-600 rotate-180 transition-transform" />
+          </button>
+          {document.sections.map(sec => (
+            <button
+              key={sec.id}
+              type="button"
+              onClick={() => selectSection(sec.id)}
+              className="w-full text-left p-3 rounded-xl border border-gray-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all flex items-center justify-between group"
+            >
+              <div>
+                <p className="font-semibold text-sm text-gray-900 group-hover:text-blue-600">{sec.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{sec.items.length} {sec.items.length === 1 ? 'item' : 'itens'}</p>
+              </div>
+              <ArrowLeft size={16} className="text-gray-400 group-hover:text-blue-600 rotate-180 transition-transform" />
+            </button>
+          ))}
+        </div>
       </div>
     );
   }

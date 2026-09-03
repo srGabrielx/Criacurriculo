@@ -56,6 +56,9 @@ export function SectionRenderer({ section, template, previewMode }: Props) {
         if(previewMode) return;
         e.stopPropagation(); 
         selectSection(section.id); 
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          useEditorStore.getState().setMobileTab('properties');
+        }
       }}
     >
       <div className="flex items-center gap-4">
@@ -82,6 +85,9 @@ export function SectionRenderer({ section, template, previewMode }: Props) {
                   e.stopPropagation(); 
                   selectSection(section.id); 
                   selectBlock(item.id); 
+                  if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                    useEditorStore.getState().setMobileTab('properties');
+                  }
                 }}
                 className={`px-3 py-1.5 text-sm font-medium transition-all ${template.id === 'minimal-pro' ? 'border' : ''} ${previewMode ? '' : isSelected ? 'ring-2 ring-blue-500 shadow-md cursor-pointer' : 'hover:opacity-80 cursor-pointer'}`}
                 style={{ 
@@ -108,6 +114,9 @@ export function SectionRenderer({ section, template, previewMode }: Props) {
                 e.stopPropagation(); 
                 selectSection(section.id); 
                 selectBlock(item.id); 
+                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  useEditorStore.getState().setMobileTab('properties');
+                }
               }}
             >
               <div className="flex justify-between items-baseline gap-4">

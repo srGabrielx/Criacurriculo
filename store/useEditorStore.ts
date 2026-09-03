@@ -76,10 +76,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   future: [],
 
   loadDocument: (id) => {
-    const doc = resumeRepository.getById(id);
-    if (doc) {
-      set({ document: doc, zoom: 100, past: [], future: [], saveStatus: 'idle' });
+    let doc = resumeRepository.getById(id);
+    if (!doc) {
+      doc = resumeRepository.createDefaultDocument(id);
     }
+    set({ 
+      document: doc, 
+      zoom: 100, 
+      past: [], 
+      future: [], 
+      saveStatus: 'idle',
+      selectedSectionId: 'personalInfo'
+    });
   },
   
   setSaveStatus: (status) => set({ saveStatus: status }),
