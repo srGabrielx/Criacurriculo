@@ -123,7 +123,8 @@
   }
 
   /* Force background colors, badges and borders to print properly */
-  .resume-print-content * {
+  .resume-print-content *,
+  #resume-print-document * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

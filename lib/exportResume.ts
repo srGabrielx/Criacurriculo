@@ -10,7 +10,7 @@ function prepareCleanClone(originalElement: HTMLElement): HTMLElement {
   clone.style.transform = 'none';
   clone.style.webkitTransform = 'none';
   clone.style.transformOrigin = 'top left';
-  clone.style.position = 'fixed';
+  clone.style.position = 'absolute';
   clone.style.top = '-9999px';
   clone.style.left = '-9999px';
   clone.style.width = '794px';
@@ -96,8 +96,17 @@ export async function exportToPdf(
 
     if (fitOnePage || contentHeightMm <= pdfPageHeight + 2) {
       // Fit neatly in 1 single A4 page
-      const renderHeight = Math.min(contentHeightMm, pdfPageHeight);
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfPageWidth, renderHeight, undefined, 'FAST');
+      let renderWidth = pdfPageWidth;
+      let renderHeight = contentHeightMm;
+      
+      if (contentHeightMm > pdfPageHeight) {
+        const scale = pdfPageHeight / contentHeightMm;
+        renderWidth = pdfPageWidth * scale;
+        renderHeight = pdfPageHeight;
+      }
+      
+      const posX = (pdfPageWidth - renderWidth) / 2;
+      pdf.addImage(imgData, 'JPEG', posX, 0, renderWidth, renderHeight, undefined, 'FAST');
     } else {
       // Multi-page document
       let remainingHeight = contentHeightMm;
