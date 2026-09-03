@@ -13,6 +13,7 @@ import { ResumeCanvas } from '../resume/ResumeCanvas';
 import { PropertiesPanel } from './PropertiesPanel';
 import { SectionPanel } from './SectionPanel';
 import { DesignPanel } from './DesignPanel';
+import { ExportModal } from './ExportModal';
 import { useAutosave } from '@/hooks/useAutosave';
 import { useHistoryShortcuts } from '@/hooks/useHistoryShortcuts';
 
@@ -38,7 +39,7 @@ export function EditorShell() {
   
   const [rightTab, setRightTab] = useState<'properties' | 'design'>('properties');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const router = useRouter();
 
   useAutosave();
@@ -48,36 +49,6 @@ export function EditorShell() {
 
   const handleZoomIn = () => setZoom(Math.min(zoom + 20, 200));
   const handleZoomOut = () => setZoom(Math.max(zoom - 20, 35));
-  
-  const handlePrintStandard = () => {
-    setShowExportMenu(false);
-    if (typeof window === 'undefined') return;
-    window.print();
-  };
-
-  const handlePrintAuto = () => {
-    setShowExportMenu(false);
-    if (typeof window === 'undefined') return;
-    const canvas = window.document.querySelector('.resume-print-content') as HTMLElement;
-    if (canvas) {
-      const currentHeight = canvas.scrollHeight;
-      const targetHeight = 1122; // px de referência para A4 96dpi (297mm)
-      if (currentHeight > targetHeight) {
-        const scale = (targetHeight / currentHeight) * 0.97;
-        window.document.documentElement.style.setProperty('--print-scale-auto', scale.toString());
-      } else {
-        window.document.documentElement.style.setProperty('--print-scale-auto', '1');
-      }
-    }
-    window.document.body.classList.add('print-auto-fit');
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => {
-        window.document.body.classList.remove('print-auto-fit');
-        window.document.documentElement.style.removeProperty('--print-scale-auto');
-      }, 500);
-    }, 150);
-  };
 
   const handleDeleteDocument = () => {
     resumeRepository.delete(document.id);
@@ -179,40 +150,16 @@ export function EditorShell() {
             <span className="hidden md:inline">{previewMode ? 'Preview Ativo' : 'Preview'}</span>
           </button>
           
-          {/* Botão Exportar / Imprimir com Dropdown */}
-          <div className="relative">
-            <button 
-              type="button"
-              onClick={() => setShowExportMenu(!showExportMenu)} 
-              className="flex items-center gap-1.5 px-3 md:px-4 py-1.5 bg-gray-900 text-white rounded-xl font-medium text-xs md:text-sm hover:bg-gray-800 shadow-sm active:scale-95 transition-all"
-              title="Exportar para PDF ou Imprimir"
-            >
-              <Download size={15}/>
-              <span>Exportar</span>
-            </button>
-            
-            {showExportMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden z-50 flex flex-col">
-                  <button 
-                    onClick={handlePrintStandard}
-                    className="flex flex-col text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b"
-                  >
-                    <span className="font-semibold text-gray-900 text-sm">Página Atual</span>
-                    <span className="text-xs text-gray-500 mt-0.5">Exporta exatamente como está na tela.</span>
-                  </button>
-                  <button 
-                    onClick={handlePrintAuto}
-                    className="flex flex-col text-left px-4 py-3 hover:bg-blue-50 transition-colors"
-                  >
-                    <span className="font-semibold text-blue-700 text-sm">Exportar Auto</span>
-                    <span className="text-xs text-blue-600/70 mt-0.5">Ajusta o tamanho para caber em 1 página.</span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          {/* Botão Exportar com Modal A4 */}
+          <button 
+            type="button"
+            onClick={() => setShowExportModal(true)} 
+            className="flex items-center gap-1.5 px-3 md:px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-xs md:text-sm shadow-sm active:scale-95 transition-all"
+            title="Exportar para PDF, Imprimir ou Imagem"
+          >
+            <Download size={15}/>
+            <span>Exportar</span>
+          </button>
 
           {/* Botão Excluir Currículo */}
           <button 
@@ -424,6 +371,13 @@ export function EditorShell() {
           </div>
         </div>
       )}
+
+      {/* Modal de Exportação Profissional A4 */}
+      <ExportModal 
+        isOpen={showExportModal} 
+        onClose={() => setShowExportModal(false)} 
+        document={document} 
+      />
     </div>
   );
 }

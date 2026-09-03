@@ -72,10 +72,10 @@ export function ResumeCanvas() {
   return (
     <div 
       ref={containerRef}
-      className="flex-1 w-full h-full overflow-y-auto overflow-x-auto bg-[#f1f3f6] relative print:overflow-visible print:bg-white print:p-0 print:m-0 print:!block"
+      className="editor-canvas-scroll flex-1 w-full h-full overflow-y-auto overflow-x-auto bg-[#f1f3f6] relative print:overflow-visible print:bg-white print:p-0 print:m-0 print:!block"
     >
       {/* Container de Centralização com scroll natural e espaço no fundo */}
-      <div className="min-h-full w-full py-6 md:py-10 flex flex-col items-center justify-start pb-32 lg:pb-20 print:p-0 print:!block">
+      <div className="editor-canvas-inner min-h-full w-full py-6 md:py-10 flex flex-col items-center justify-start pb-32 lg:pb-20 print:p-0 print:m-0 print:!block">
         
         {/* Wrapper que reserva o espaço real do currículo escalado */}
         <div 
@@ -85,11 +85,12 @@ export function ResumeCanvas() {
             position: 'relative',
             flexShrink: 0
           }}
-          className="transition-all duration-150 ease-out print:!w-full print:!h-auto"
+          className="editor-scale-wrapper transition-all duration-150 ease-out print:!w-full print:!h-auto print:!m-0 print:!p-0 print:!static"
         >
           <div 
             ref={resumeRef}
-            className="resume-print-content absolute top-0 left-0 shadow-2xl transition-transform duration-150 ease-out flex flex-col print:shadow-none print:transform-none print:!scale-100 print:m-0 print:relative select-text cursor-default"
+            id="resume-print-document"
+            className="resume-print-content absolute top-0 left-0 shadow-2xl transition-transform duration-150 ease-out flex flex-col select-text cursor-default"
             style={{ 
               width: '794px', 
               minHeight: '1123px', 
