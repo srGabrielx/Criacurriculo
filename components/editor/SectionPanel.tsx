@@ -24,6 +24,7 @@ const getDefaultItemTitle = (type: string) => {
 export function SectionPanel() {
   const { document, selectedSectionId, selectSection, addSection, updateSection, removeSection, reorderSections } = useEditorStore();
   const mounted = useMounted();
+  const [showAddMenu, setShowAddMenu] = useState(false);
 
   if (!document || !mounted) return null;
 
@@ -42,8 +43,6 @@ export function SectionPanel() {
     selectSection(newSection.id);
     setShowAddMenu(false);
   };
-
-  const [showAddMenu, setShowAddMenu] = useState(false);
 
   const handleDeleteSection = (e: React.MouseEvent, sectionId: string) => {
     e.stopPropagation();
