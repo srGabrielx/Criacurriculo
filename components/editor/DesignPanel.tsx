@@ -2,7 +2,7 @@
 import { useEditorStore } from '@/store/useEditorStore';
 import { templates, getTemplate } from '@/domain/template/registry';
 import { TemplatePreview } from '../resume/TemplatePreview';
-import { Palette, Type, Sliders, RotateCcw, Check, Sparkles, Eye } from 'lucide-react';
+import { Palette, Type, Sliders, RotateCcw, Check, Sparkles } from 'lucide-react';
 
 const PRESET_PALETTES = [
   {
@@ -96,7 +96,7 @@ const BACKGROUND_OPTIONS = [
 ];
 
 export function DesignPanel() {
-  const { document, changeTemplate, updateTheme, setMobileTab } = useEditorStore();
+  const { document, changeTemplate, updateTheme } = useEditorStore();
   
   if (!document) return null;
   
@@ -142,19 +142,6 @@ export function DesignPanel() {
 
   return (
     <div className="flex flex-col gap-8 pb-12">
-      {/* Botão de atalho móvel para ver o Canvas */}
-      <div className="lg:hidden flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900">
-        <span className="text-xs font-semibold">Preview ao vivo ativado</span>
-        <button 
-          type="button"
-          onClick={() => setMobileTab('canvas')}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium shadow-sm active:scale-95 transition-transform"
-        >
-          <Eye size={14} />
-          <span>Ver Currículo</span>
-        </button>
-      </div>
-
       {/* Seção 1: Templates de Currículo */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">

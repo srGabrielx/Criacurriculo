@@ -22,6 +22,8 @@ export function EditorShell() {
     document, 
     updateDocumentTitle, 
     zoom, 
+    isAutoFit,
+    requestFitToScreen,
     setZoom, 
     mobileTab, 
     setMobileTab, 
@@ -99,9 +101,11 @@ export function EditorShell() {
              </button>
              <button
                type="button"
-               onClick={() => setZoom(100)}
-               className="px-2 text-xs font-semibold w-12 text-center text-gray-700 hover:text-blue-600 transition-colors"
-               title="Restaurar zoom para 100%"
+               onClick={requestFitToScreen}
+               className={`px-2 py-0.5 text-xs font-semibold text-center rounded-lg transition-all ${
+                 isAutoFit ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-700 hover:text-blue-600'
+               }`}
+               title="Clique para ajustar à largura da tela"
              >
                {zoom}%
              </button>
@@ -139,15 +143,15 @@ export function EditorShell() {
 
           <div className="hidden sm:block w-px h-5 bg-gray-200 mx-1"></div>
           
-          {/* Modo Preview */}
+          {/* Alternar Modo Leitura (Oculta bordas de edição) */}
           <button 
             type="button"
             onClick={togglePreviewMode}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium text-xs md:text-sm transition-all ${previewMode ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-100'}`}
-            title="Alternar modo de visualização limpa"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium text-xs md:text-sm transition-all ${previewMode ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-700 hover:bg-gray-100'}`}
+            title={previewMode ? 'Voltar para o modo de edição com guias' : 'Ocultar caixas e linhas de edição para leitura limpa'}
           >
             {previewMode ? <Eye size={15}/> : <EyeOff size={15}/>}
-            <span className="hidden md:inline">{previewMode ? 'Preview Ativo' : 'Preview'}</span>
+            <span className="hidden md:inline">{previewMode ? 'Modo Leitura' : 'Modo Leitura'}</span>
           </button>
           
           {/* Botão Exportar com Modal A4 */}
@@ -186,34 +190,49 @@ export function EditorShell() {
            
            {/* Barra de Controles Rápidos de Visualização Flutuante no Canvas */}
            <div 
-             className="absolute bottom-6 right-6 lg:bottom-8 lg:right-8 z-30 flex items-center bg-white/90 backdrop-blur-md border border-gray-300/80 shadow-lg rounded-xl p-1 gap-1 print:hidden"
+             className="absolute bottom-20 right-3 sm:right-6 lg:bottom-8 lg:right-8 z-30 flex items-center bg-white/95 backdrop-blur-md border border-gray-300/80 shadow-xl rounded-2xl p-1 gap-1 print:hidden"
            >
              <button
                type="button"
                onClick={handleZoomOut}
-               className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-               title="Diminuir Zoom"
+               className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
+               title="Diminuir Zoom (-)"
              >
-               <ZoomOut size={15} />
+               <ZoomOut size={16} />
              </button>
 
              <button
                type="button"
-               onClick={() => setZoom(100)}
-               className="px-2 py-1 text-xs font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
-               title={zoom === 100 ? "Ajustar à tela" : "Restaurar para 100%"}
+               onClick={requestFitToScreen}
+               className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 ${
+                 isAutoFit 
+                   ? 'bg-blue-600 text-white shadow-xs' 
+                   : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
+               }`}
+               title="Ajustar automaticamente à largura da tela"
              >
                <Maximize2 size={13} />
-               <span>{zoom}%</span>
+               <span>{isAutoFit ? `Ajustado (${zoom}%)` : `Ajustar (${zoom}%)`}</span>
              </button>
+
+             {zoom !== 100 && (
+               <button
+                 type="button"
+                 onClick={() => setZoom(100)}
+                 className="hidden sm:inline-flex px-2 py-1.5 text-xs font-semibold text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-xl transition-colors"
+                 title="Restaurar tamanho real (100%)"
+               >
+                 100%
+               </button>
+             )}
 
              <button
                type="button"
                onClick={handleZoomIn}
-               className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-               title="Aumentar Zoom"
+               className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
+               title="Aumentar Zoom (+)"
              >
-               <ZoomIn size={15} />
+               <ZoomIn size={16} />
              </button>
            </div>
         </main>
@@ -272,7 +291,10 @@ export function EditorShell() {
 
               <button 
                 type="button"
-                onClick={() => setMobileTab('canvas')}
+                onClick={() => {
+                  setMobileTab('canvas');
+                  requestFitToScreen();
+                }}
                 className="px-2.5 py-1 bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-100 flex items-center gap-1.5 transition-colors shadow-2xs"
               >
                 <Eye size={13} />
@@ -294,7 +316,10 @@ export function EditorShell() {
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-[60px] bg-white/98 backdrop-blur-md border-t border-gray-200 flex items-center justify-around z-50 px-2 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)] print:hidden">
           <button 
             type="button"
-            onClick={() => setMobileTab('canvas')}
+            onClick={() => {
+              setMobileTab('canvas');
+              requestFitToScreen();
+            }}
             className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${mobileTab === 'canvas' ? 'text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-900'}`}
           >
             <FileText size={19} />

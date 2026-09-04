@@ -9,7 +9,8 @@ import {
 } from '@/lib/exportResume';
 import { 
   Download, Printer, Image as ImageIcon, FileCode, X, 
-  CheckCircle2, Sparkles, Loader2, AlertCircle, FileCheck, HelpCircle
+  CheckCircle2, Sparkles, Loader2, AlertCircle, FileCheck, HelpCircle,
+  FileText, Copy
 } from 'lucide-react';
 
 interface ExportModalProps {
@@ -147,9 +148,47 @@ export function ExportModal({ isOpen, onClose, document }: ExportModalProps) {
               </span>
             </div>
 
-            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
-              Gera o arquivo <strong className="text-gray-800">.pdf</strong> com nitidez profissional (300 DPI), formato A4 exato e sem encolhimento, pronto para enviar pelo celular ou computador.
+            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+              Gera o arquivo <strong className="text-gray-800">.pdf</strong> com nitidez profissional (300 DPI) e proporção exata para não achatar fotos nem distorcer textos.
             </p>
+
+            {/* Seletor de Páginas: 1 Página vs Múltiplas */}
+            <div className="mb-3.5 bg-white/95 border border-blue-200/90 rounded-xl p-2.5 flex flex-col gap-1.5 shadow-2xs">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-950">
+                Formato de Páginas
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFitOnePage(true)}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    fitOnePage 
+                      ? 'bg-blue-600 text-white shadow-xs' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileText size={14} />
+                  <span>1 Página (Padrão)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFitOnePage(false)}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    !fitOnePage 
+                      ? 'bg-blue-600 text-white shadow-xs' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Copy size={14} />
+                  <span>Múltiplas Páginas</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-500 leading-tight mt-0.5">
+                {fitOnePage 
+                  ? 'Garante que todo o currículo caiba exatamente em 1 folha A4 sem deformar fotos.' 
+                  : 'Permite que o currículo se estenda por 2 ou mais páginas se o conteúdo for longo.'}
+              </p>
+            </div>
 
             <button
               type="button"
@@ -165,7 +204,7 @@ export function ExportModal({ isOpen, onClose, document }: ExportModalProps) {
               ) : (
                 <>
                   <FileCheck size={17} />
-                  <span>Baixar PDF Agora</span>
+                  <span>Baixar PDF Agora {fitOnePage ? '(1 Página)' : ''}</span>
                 </>
               )}
             </button>

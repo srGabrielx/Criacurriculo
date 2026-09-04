@@ -52,10 +52,10 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
       >
         {!template.layout.hidePhoto && personalInfo.photo && (
           <div 
-            className="relative shrink-0 overflow-hidden mb-4 mx-auto shadow-sm"
+            className="relative shrink-0 overflow-hidden mb-4 mx-auto shadow-sm rounded-md"
             style={{ 
-              width: '100%',
-              maxWidth: '180px', 
+              width: '140px',
+              height: '140px', 
               border: '2px solid var(--resume-border)',
               backgroundColor: 'rgba(0, 0, 0, 0.02)'
             }}
@@ -63,7 +63,7 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
             <img 
               src={personalInfo.photo} 
               alt={personalInfo.name}
-              className="w-full h-auto object-contain"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
@@ -165,7 +165,7 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
   return (
     <div 
       ref={ref}
-      className={`flex flex-col md:flex-row items-center gap-8 print:break-inside-avoid ${previewMode ? '' : 'p-4 -m-4'} ${outlineClasses}`}
+      className={`flex flex-row items-start gap-6 print:break-inside-avoid ${previewMode ? '' : 'p-4 -m-4'} ${outlineClasses}`}
       onClick={(e) => { 
         if(previewMode) return;
         e.stopPropagation(); 
@@ -177,9 +177,10 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
     >
       {!template.layout.hidePhoto && personalInfo.photo && (
         <div 
-          className="relative shrink-0 overflow-hidden shadow-sm self-center md:self-start mt-1 rounded-md"
+          className="relative shrink-0 overflow-hidden shadow-sm self-start mt-1 rounded-md"
           style={{ 
-            maxWidth: '180px', 
+            width: '135px', 
+            height: '165px',
             border: '2px solid var(--resume-border)',
             backgroundColor: 'rgba(0, 0, 0, 0.02)'
           }}
@@ -187,17 +188,17 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
           <img 
             src={personalInfo.photo} 
             alt={personalInfo.name}
-            className="w-full h-auto object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
       )}
       
-      <div className="flex flex-col gap-3 text-center md:text-left flex-1 md:pl-4">
+      <div className="flex flex-col gap-2.5 text-left flex-1 pl-2">
         <h1 className="text-4xl font-bold break-words whitespace-pre-wrap" style={{ color: 'var(--resume-text)' }} {...editableProps('name')}>
           {personalInfo.name}
         </h1>
         
-        <h2 className="text-xl flex flex-wrap gap-2 items-center justify-center md:justify-start break-words whitespace-pre-wrap">
+        <h2 className="text-xl flex flex-wrap gap-2 items-center justify-start break-words whitespace-pre-wrap">
           <span style={{ color: 'var(--resume-muted)' }} {...editableProps('headline')}>{personalInfo.headline}</span>
           {personalInfo.headlineAccent && (
             <span className="font-semibold" style={{ color: 'var(--resume-primary)' }} {...editableProps('headlineAccent')}>
@@ -207,12 +208,12 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
         </h2>
         
         {personalInfo.description && (
-          <p className="mt-3 leading-relaxed text-sm max-w-2xl break-words whitespace-pre-wrap" style={{ color: 'var(--resume-text)' }} {...editableProps('description')}>
+          <p className="mt-2 leading-relaxed text-sm max-w-2xl break-words whitespace-pre-wrap" style={{ color: 'var(--resume-text)' }} {...editableProps('description')}>
             {personalInfo.description}
           </p>
         )}
 
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 pt-3 border-t" style={{ borderColor: 'var(--resume-border)' }}>
+        <div className="flex flex-wrap items-center justify-start gap-4 mt-2 pt-3 border-t" style={{ borderColor: 'var(--resume-border)' }}>
           {personalInfo.location && (
             <div className="flex items-center gap-1.5">
               <MapPin size={14} style={{ color: 'var(--resume-secondary)' }} />

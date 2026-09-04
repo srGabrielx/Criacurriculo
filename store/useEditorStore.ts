@@ -7,6 +7,8 @@ interface EditorState {
   selectedSectionId: string | null;
   selectedBlockId: string | null;
   zoom: number;
+  isAutoFit: boolean;
+  fitToScreenRequested: number;
   mobileTab: 'canvas' | 'sections' | 'properties' | 'design';
   previewMode: boolean;
   saveStatus: 'idle' | 'saving' | 'saved' | 'error';
@@ -35,7 +37,8 @@ interface EditorState {
   
   changeTemplate: (templateId: string) => void;
   updateTheme: (theme: Partial<Theme>) => void;
-  setZoom: (zoom: number) => void;
+  setZoom: (zoom: number, isManual?: boolean) => void;
+  requestFitToScreen: () => void;
   setMobileTab: (tab: 'canvas' | 'sections' | 'properties' | 'design') => void;
   togglePreviewMode: () => void;
 }
@@ -69,6 +72,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   selectedSectionId: null,
   selectedBlockId: null,
   zoom: 100,
+  isAutoFit: true,
+  fitToScreenRequested: 0,
   mobileTab: 'canvas',
   previewMode: false,
   saveStatus: 'idle',
@@ -82,7 +87,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
     set({ 
       document: doc, 
-      zoom: 100, 
+      isAutoFit: true,
+      fitToScreenRequested: Date.now(),
       past: [], 
       future: [], 
       saveStatus: 'idle',
@@ -213,7 +219,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     return { ...doc, settings: newSettings };
   }),
   
-  setZoom: (zoom) => set({ zoom }),
+  setZoom: (zoom, isManual = true) => set(state => ({ 
+    zoom: Math.min(Math.max(Math.round(zoom), 20), 250), 
+    isAutoFit: isManual ? false : state.isAutoFit 
+  })),
+  requestFitToScreen: () => set({ 
+    isAutoFit: true, 
+    fitToScreenRequested: Date.now() 
+  }),
   setMobileTab: (tab) => set({ mobileTab: tab }),
   togglePreviewMode: () => set(state => ({ previewMode: !state.previewMode }))
 }));

@@ -69,18 +69,27 @@ export async function exportToPdf(
   window.document.body.appendChild(clone);
 
   try {
+    const bgColor = (document.settings as any)?.background || 
+      (document.settings?.theme as any)?.background || 
+      '#ffffff';
+
     const canvas = await html2canvas(clone, {
-      scale: 2, // 2x gives crystal clear sharp rendering without excessive memory
+      scale: 2, // 2x gives crystal clear sharp rendering matching exportToImage
       useCORS: true,
-      allowTaint: true,
       logging: false,
-      backgroundColor: (document.settings as any)?.background || '#ffffff',
+      backgroundColor: bgColor,
       windowWidth: 794,
     });
 
-    onProgress?.('Gerando arquivo PDF...');
+    onProgress?.('Gerando páginas do PDF...');
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    // Standard A4 dimensions in mm
+    const pdfPageWidthMm = 210;
+    const pdfPageHeightMm = 297;
+
+    // The exact height in canvas pixels that matches 210mm x 297mm A4 aspect ratio (297 / 210 = 1.4142857...)
+    const a4PageHeightPx = Math.round((canvas.width * pdfPageHeightMm) / pdfPageWidthMm);
+
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -88,38 +97,103 @@ export async function exportToPdf(
       compress: true
     });
 
-    const pdfPageWidth = 210;
-    const pdfPageHeight = 297;
+    if (fitOnePage) {
+      // Formato Folha Única A4 (Padrão e Recomendado):
+      // Garante que todo o currículo fique em 1 página sem distorcer fotos ou textos
+      const pageCanvas = window.document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = a4PageHeightPx;
+      const ctx = pageCanvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
-    // Calculate height in mm corresponding to canvas aspect ratio
-    const contentHeightMm = (canvas.height * pdfPageWidth) / canvas.width;
+        if (canvas.height <= a4PageHeightPx) {
+          // O conteúdo já cabe na página A4: desenha na escala 1:1 sem redimensionar
+          ctx.drawImage(
+            canvas,
+            0, 0, canvas.width, canvas.height,
+            0, 0, canvas.width, canvas.height
+          );
+        } else {
+          // O conteúdo ultrapassa ligeiramente: escala largura e altura com a MESMA proporção exata
+          // Isso garante que fotos continuem perfeitamente quadradas/circulares e o texto nítido
+          const scale = a4PageHeightPx / canvas.height;
+          const targetWidth = canvas.width * scale;
+          const targetHeight = a4PageHeightPx;
+          const offsetX = (canvas.width - targetWidth) / 2;
 
-    if (fitOnePage || contentHeightMm <= pdfPageHeight + 2) {
-      // Fit neatly in 1 single A4 page
-      let renderWidth = pdfPageWidth;
-      let renderHeight = contentHeightMm;
-      
-      if (contentHeightMm > pdfPageHeight) {
-        const scale = pdfPageHeight / contentHeightMm;
-        renderWidth = pdfPageWidth * scale;
-        renderHeight = pdfPageHeight;
+          ctx.drawImage(
+            canvas,
+            0, 0, canvas.width, canvas.height,
+            offsetX, 0, targetWidth, targetHeight
+          );
+        }
       }
-      
-      const posX = (pdfPageWidth - renderWidth) / 2;
-      pdf.addImage(imgData, 'JPEG', posX, 0, renderWidth, renderHeight, undefined, 'FAST');
+
+      const imgData = pageCanvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
     } else {
-      // Multi-page document
-      let remainingHeight = contentHeightMm;
-      let positionY = 0;
+      // Modo Múltiplas Páginas:
+      // Se a sobra além de 1 página for irrelevante (<= 8%, margem de segurança),
+      // mantém em 1 página para não gerar uma folha quase em branco
+      const minorOverflowThreshold = a4PageHeightPx * 0.08;
 
-      pdf.addImage(imgData, 'JPEG', 0, positionY, pdfPageWidth, contentHeightMm, undefined, 'FAST');
-      remainingHeight -= pdfPageHeight;
+      if (canvas.height <= a4PageHeightPx + minorOverflowThreshold) {
+        const pageCanvas = window.document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = a4PageHeightPx;
+        const ctx = pageCanvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+          if (canvas.height <= a4PageHeightPx) {
+            ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+          } else {
+            const scale = a4PageHeightPx / canvas.height;
+            const targetWidth = canvas.width * scale;
+            const offsetX = (canvas.width - targetWidth) / 2;
+            ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, offsetX, 0, targetWidth, a4PageHeightPx);
+          }
+        }
+        const imgData = pageCanvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+      } else {
+        // Conteúdo genuinamente longo: divide em fatias exatas A4 (210mm x 297mm)
+        let totalPages = Math.ceil(canvas.height / a4PageHeightPx);
+        const lastPageSliceHeight = canvas.height - ((totalPages - 1) * a4PageHeightPx);
+        if (totalPages > 1 && lastPageSliceHeight < 60) {
+          totalPages -= 1;
+        }
 
-      while (remainingHeight > 3) {
-        positionY -= pdfPageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, positionY, pdfPageWidth, contentHeightMm, undefined, 'FAST');
-        remainingHeight -= pdfPageHeight;
+        for (let page = 0; page < totalPages; page++) {
+          const sourceY = page * a4PageHeightPx;
+          const sourceHeight = Math.min(a4PageHeightPx, canvas.height - sourceY);
+
+          if (sourceHeight <= 0) break;
+
+          const pageCanvas = window.document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = a4PageHeightPx;
+          const ctx = pageCanvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+            // Desenha a fatura A4 correspondente
+            ctx.drawImage(
+              canvas,
+              0, sourceY, canvas.width, sourceHeight,
+              0, 0, canvas.width, sourceHeight
+            );
+          }
+
+          if (page > 0) {
+            pdf.addPage();
+          }
+
+          const imgData = pageCanvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+        }
       }
     }
 
