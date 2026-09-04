@@ -22,7 +22,7 @@ interface EditorState {
   redo: () => void;
   
   updateDocumentTitle: (title: string) => void;
-  updatePersonalInfo: (field: keyof PersonalInfo, value: string) => void;
+  updatePersonalInfo: (field: keyof PersonalInfo, value: any) => void;
   updateSection: (sectionId: string, updates: Partial<Section>) => void;
   addSection: (section: Section) => void;
   removeSection: (sectionId: string) => void;

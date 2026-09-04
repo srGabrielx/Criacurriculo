@@ -94,8 +94,20 @@ export async function exportToPdf(
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
-      compress: true
+      compress: false
     });
+
+    const addCanvasToPdf = (targetCanvas: HTMLCanvasElement) => {
+      try {
+        // Alta qualidade visual sem distorção ou perda de proporção de fotos
+        const imgData = targetCanvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+      } catch {
+        // Fallback caso JPEG falhe em algum navegador específico
+        const imgData = targetCanvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+      }
+    };
 
     if (fitOnePage) {
       // Formato Folha Única A4 (Padrão e Recomendado):
@@ -131,8 +143,7 @@ export async function exportToPdf(
         }
       }
 
-      const imgData = pageCanvas.toDataURL('image/png');
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+      addCanvasToPdf(pageCanvas);
     } else {
       // Modo Múltiplas Páginas:
       // Se a sobra além de 1 página for irrelevante (<= 8%, margem de segurança),
@@ -156,8 +167,7 @@ export async function exportToPdf(
             ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, offsetX, 0, targetWidth, a4PageHeightPx);
           }
         }
-        const imgData = pageCanvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+        addCanvasToPdf(pageCanvas);
       } else {
         // Conteúdo genuinamente longo: divide em fatias exatas A4 (210mm x 297mm)
         let totalPages = Math.ceil(canvas.height / a4PageHeightPx);
@@ -191,8 +201,7 @@ export async function exportToPdf(
             pdf.addPage();
           }
 
-          const imgData = pageCanvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfPageWidthMm, pdfPageHeightMm, undefined, 'FAST');
+          addCanvasToPdf(pageCanvas);
         }
       }
     }

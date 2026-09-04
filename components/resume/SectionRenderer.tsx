@@ -157,10 +157,15 @@ export function SectionRenderer({ section, template, previewMode }: Props) {
                 </p>
               )}
 
-              {item.tags && (
+              {Boolean(item.tags) && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {item.tags.split(',').map((tag: string, idx: number) => {
-                    const cleanTag = tag.trim();
+                  {(typeof item.tags === 'string'
+                    ? item.tags.split(',')
+                    : Array.isArray(item.tags)
+                      ? item.tags
+                      : []
+                  ).map((tag: any, idx: number) => {
+                    const cleanTag = String(tag ?? '').trim();
                     if (!cleanTag) return null;
                     return (
                       <span key={idx} className="px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider rounded-md border" style={{ borderColor: 'var(--resume-border)', color: 'var(--resume-secondary)', backgroundColor: 'var(--resume-border)' }}>

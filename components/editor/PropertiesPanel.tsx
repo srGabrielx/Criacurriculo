@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useEditorStore } from '@/store/useEditorStore';
-import { Image as ImageIcon, Link as LinkIcon, Trash2, Plus, GripVertical, ArrowLeft } from 'lucide-react';
+import { Image as ImageIcon, Link as LinkIcon, Trash2, Plus, GripVertical, ArrowLeft, Check, Upload, Maximize2, Crop, Circle, Square } from 'lucide-react';
 import { generateId } from '@/lib/utils';
 import { SectionItem } from '@/types/resume';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -120,42 +120,215 @@ export function PropertiesPanel() {
           </div>
 
           <div className="flex flex-col gap-2 mt-2">
-            <label className="text-xs font-semibold text-gray-500 uppercase">Foto do Perfil</label>
-            
-            <div className="flex flex-col gap-3 p-3 bg-gray-50 border rounded-lg">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto do Perfil</label>
               {info.photo && (
-                <div className="flex items-center gap-3 p-2 bg-white rounded-lg border">
-                  <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border bg-gray-100 shadow-2xs">
+                <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
+                  <Check size={12} />
+                  Ativa no currículo
+                </span>
+              )}
+            </div>
+            
+            <div className="flex flex-col gap-3.5 p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl">
+              {info.photo ? (
+                <div className="flex flex-col gap-3">
+                  {/* Prévia da imagem inteira sem cortes */}
+                  <div className="relative w-full h-48 bg-slate-100/90 rounded-xl border border-slate-200/90 p-2 flex items-center justify-center overflow-hidden group">
                     <img 
                       src={info.photo} 
-                      alt="Preview" 
-                      className="w-full h-full object-cover object-center" 
+                      alt="Prévia da foto" 
+                      className={`max-w-full max-h-full transition-all duration-200 shadow-2xs ${
+                        info.photoShape === 'circle' 
+                          ? 'rounded-full aspect-square' 
+                          : info.photoShape === 'square' 
+                            ? 'rounded-none' 
+                            : 'rounded-lg'
+                      } ${
+                        info.photoFit === 'cover' 
+                          ? 'w-full h-full object-cover' 
+                          : 'w-auto h-auto object-contain'
+                      }`} 
                     />
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span className="text-xs font-semibold text-gray-700">Foto selecionada</span>
-                    <span className="text-[11px] text-emerald-600 font-medium">Ativa no currículo</span>
-                  </div>
-                  <button 
-                    type="button"
-                    onClick={() => updatePersonalInfo('photo', '')}
-                    className="text-xs text-red-600 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-md font-medium transition-colors"
-                    title="Remover foto do perfil"
-                  >
-                    Remover
-                  </button>
-                </div>
-              )}
 
-              <label className="flex items-center justify-center gap-2 cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 bg-white hover:bg-blue-50/50 py-2 px-3 rounded-lg border border-dashed border-blue-300 transition-colors">
-                <ImageIcon size={16}/>
-                <span>Carregar imagem do dispositivo</span>
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+                    {/* Tag informativa de enquadramento */}
+                    <div className="absolute top-2 left-2 bg-slate-900/70 text-white text-[10px] px-2 py-0.5 rounded-md backdrop-blur-xs flex items-center gap-1 font-medium">
+                      {info.photoFit === 'cover' ? (
+                        <>
+                          <Maximize2 size={10} />
+                          <span>Preenchendo quadro</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check size={10} className="text-emerald-400" />
+                          <span>Exibindo imagem inteira</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Botão de remoção rápida */}
+                    <button 
+                      type="button"
+                      onClick={() => updatePersonalInfo('photo', '')}
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-slate-500 hover:text-red-600 p-1.5 rounded-lg border border-slate-200 shadow-xs transition-colors"
+                      title="Remover foto do perfil"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+
+                  {/* Controles de Enquadramento e Conflito de Espaço */}
+                  <div className="grid grid-cols-1 gap-2.5 pt-1">
+                    {/* Modo de ajuste (Fit): Inteira vs Preencher */}
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] font-semibold text-slate-600">Enquadramento</span>
+                      <div className="grid grid-cols-2 gap-1.5 bg-slate-200/60 p-1 rounded-lg">
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoFit', 'contain')}
+                          className={`py-1.5 px-2 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                            (info.photoFit || 'contain') === 'contain'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <Crop size={13} />
+                          <span>Inteira (Sem cortes)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoFit', 'cover')}
+                          className={`py-1.5 px-2 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                            info.photoFit === 'cover'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <Maximize2 size={13} />
+                          <span>Preencher quadro</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Tamanho no currículo (sem conflito por espaço) */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-slate-600">Espaço no Currículo</span>
+                        <span className="text-[10px] text-slate-400">Sem encavalar com texto</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg text-center">
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoSize', 'sm')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all ${
+                            info.photoSize === 'sm'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Compacto: libera o máximo de espaço para o texto"
+                        >
+                          Compacto
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoSize', 'md')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all ${
+                            (info.photoSize || 'md') === 'md'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Padrão: proporção harmônica ideal"
+                        >
+                          Padrão
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoSize', 'lg')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all ${
+                            info.photoSize === 'lg'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Grande: destaque executivo"
+                        >
+                          Destaque
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Formato da moldura */}
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] font-semibold text-slate-600">Formato da Moldura</span>
+                      <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg text-center">
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoShape', 'rounded')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all flex items-center justify-center gap-1 ${
+                            (info.photoShape || 'rounded') === 'rounded'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <span className="w-2.5 h-2.5 rounded-xs border border-current" />
+                          <span>Arredondado</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoShape', 'circle')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all flex items-center justify-center gap-1 ${
+                            info.photoShape === 'circle'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <Circle size={11} />
+                          <span>Círculo</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updatePersonalInfo('photoShape', 'square')}
+                          className={`py-1 px-2 text-xs rounded-md transition-all flex items-center justify-center gap-1 ${
+                            info.photoShape === 'square'
+                              ? 'bg-white text-blue-700 shadow-2xs font-semibold'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <Square size={11} />
+                          <span>Reto</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ação para trocar imagem */}
+                  <label className="flex items-center justify-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-blue-700 bg-white hover:bg-blue-50/50 py-2 px-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors shadow-2xs">
+                    <Upload size={14} className="text-blue-600" />
+                    <span>Substituir imagem</span>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            updatePersonalInfo('photo', reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              ) : (
+                /* Quando nenhuma foto está carregada */
+                <label 
+                  className="flex flex-col items-center justify-center gap-2.5 cursor-pointer text-center p-5 bg-white hover:bg-blue-50/40 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-400 transition-all shadow-2xs group"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files?.[0];
                     if (file) {
                       const reader = new FileReader();
                       reader.onloadend = () => {
@@ -164,23 +337,67 @@ export function PropertiesPanel() {
                       reader.readAsDataURL(file);
                     }
                   }}
-                />
-              </label>
-              
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <div className="h-px bg-gray-200 flex-1"></div>
-                OU
-                <div className="h-px bg-gray-200 flex-1"></div>
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <ImageIcon size={20} />
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-slate-800">Clique ou arraste sua foto aqui</span>
+                    <span className="text-[11px] text-slate-500">Exibição completa sem cortes (JPG, PNG, WebP)</span>
+                  </div>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          updatePersonalInfo('photo', reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+              )}
+
+              {/* Fotos de Exemplo rápidas */}
+              <div className="flex flex-col gap-1.5 pt-1 border-t border-slate-200">
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Exemplos Prontos</span>
+                <div className="flex items-center gap-2">
+                  {[
+                    { label: 'Perfil 1', src: '/perfil.jpg' },
+                    { label: 'Perfil 2', src: '/foto2.jpg' },
+                    { label: 'Perfil 3', src: '/foto3.jpg' },
+                  ].map((preset) => (
+                    <button
+                      key={preset.src}
+                      type="button"
+                      onClick={() => updatePersonalInfo('photo', preset.src)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-1.5 text-[11px] rounded-lg border transition-all ${
+                        info.photo === preset.src
+                          ? 'bg-blue-50 border-blue-300 text-blue-700 font-semibold shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <img src={preset.src} alt="" className="w-4 h-4 rounded-full object-cover" />
+                      <span className="truncate">{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <LinkIcon size={16} className="text-gray-400 shrink-0"/>
+              {/* Inserção manual por Link */}
+              <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
+                <LinkIcon size={14} className="text-slate-400 shrink-0"/>
                 <input 
                   type="text" 
                   value={info.photo} 
                   onChange={e => updatePersonalInfo('photo', e.target.value)} 
-                  placeholder="Endereço da imagem (URL)"
-                  className="flex-1 bg-transparent border-b border-gray-300 focus:border-blue-500 text-sm outline-none px-1 py-1" 
+                  placeholder="Ou cole uma URL direta da foto"
+                  className="flex-1 bg-transparent text-xs text-slate-700 placeholder:text-slate-400 outline-none px-1 py-1 border-b border-transparent focus:border-blue-500 transition-colors" 
                 />
               </div>
             </div>

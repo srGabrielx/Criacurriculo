@@ -37,10 +37,29 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
   };
 
   if (isSidebar) {
+    const photoFit = personalInfo.photoFit || 'contain';
+    const photoShape = personalInfo.photoShape || 'rounded';
+    const photoSize = personalInfo.photoSize || 'md';
+
+    const sizeDimensions = {
+      sm: { w: '100px', h: '120px', circleSize: '100px' },
+      md: { w: '125px', h: '145px', circleSize: '125px' },
+      lg: { w: '145px', h: '165px', circleSize: '145px' },
+    }[photoSize] || { w: '125px', h: '145px', circleSize: '125px' };
+
+    const shapeClasses = photoShape === 'circle' 
+      ? 'rounded-full' 
+      : photoShape === 'square' 
+        ? 'rounded-none' 
+        : 'rounded-xl';
+
+    const containerWidth = photoShape === 'circle' ? sizeDimensions.circleSize : sizeDimensions.w;
+    const containerHeight = photoShape === 'circle' ? sizeDimensions.circleSize : sizeDimensions.h;
+
     return (
       <div 
         ref={ref}
-        className={`flex flex-col items-center text-center gap-4 print:break-inside-avoid ${previewMode ? '' : 'p-2 -m-2'} ${outlineClasses}`}
+        className={`flex flex-col items-center text-center gap-3 print:break-inside-avoid ${previewMode ? '' : 'p-2 -m-2'} ${outlineClasses}`}
         onClick={(e) => { 
           if(previewMode) return;
           e.stopPropagation(); 
@@ -52,10 +71,10 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
       >
         {!template.layout.hidePhoto && personalInfo.photo && (
           <div 
-            className="relative shrink-0 overflow-hidden mb-4 mx-auto shadow-sm rounded-md"
+            className={`relative shrink-0 overflow-hidden mb-2 mx-auto shadow-xs flex items-center justify-center p-0.5 ${shapeClasses}`}
             style={{ 
-              width: '140px',
-              height: '140px', 
+              width: containerWidth,
+              height: containerHeight, 
               border: '2px solid var(--resume-border)',
               backgroundColor: 'rgba(0, 0, 0, 0.02)'
             }}
@@ -63,11 +82,11 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
             <img 
               src={personalInfo.photo} 
               alt={personalInfo.name}
-              className="w-full h-full object-cover"
+              className={`max-w-full max-h-full ${photoFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-auto object-contain'}`}
             />
           </div>
         )}
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-1 w-full min-w-0">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--resume-primary)' }} {...editableProps('name')}>
             {personalInfo.name}
           </h1>
@@ -162,10 +181,29 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
   }
 
   // Default Modern/Minimal renderer
+  const photoFit = personalInfo.photoFit || 'contain';
+  const photoShape = personalInfo.photoShape || 'rounded';
+  const photoSize = personalInfo.photoSize || 'md';
+
+  const sizeDimensions = {
+    sm: { w: '95px', h: '120px', circleSize: '95px' },
+    md: { w: '120px', h: '145px', circleSize: '120px' },
+    lg: { w: '140px', h: '168px', circleSize: '140px' },
+  }[photoSize] || { w: '120px', h: '145px', circleSize: '120px' };
+
+  const shapeClasses = photoShape === 'circle' 
+    ? 'rounded-full' 
+    : photoShape === 'square' 
+      ? 'rounded-none' 
+      : 'rounded-xl';
+
+  const containerWidth = photoShape === 'circle' ? sizeDimensions.circleSize : sizeDimensions.w;
+  const containerHeight = photoShape === 'circle' ? sizeDimensions.circleSize : sizeDimensions.h;
+
   return (
     <div 
       ref={ref}
-      className={`flex flex-row items-start gap-6 print:break-inside-avoid ${previewMode ? '' : 'p-4 -m-4'} ${outlineClasses}`}
+      className={`flex flex-row items-start gap-5 print:break-inside-avoid ${previewMode ? '' : 'p-3 -m-3'} ${outlineClasses}`}
       onClick={(e) => { 
         if(previewMode) return;
         e.stopPropagation(); 
@@ -177,10 +215,10 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
     >
       {!template.layout.hidePhoto && personalInfo.photo && (
         <div 
-          className="relative shrink-0 overflow-hidden shadow-sm self-start mt-1 rounded-md"
+          className={`relative shrink-0 overflow-hidden shadow-xs self-start mt-0.5 flex items-center justify-center p-0.5 ${shapeClasses}`}
           style={{ 
-            width: '135px', 
-            height: '165px',
+            width: containerWidth, 
+            height: containerHeight,
             border: '2px solid var(--resume-border)',
             backgroundColor: 'rgba(0, 0, 0, 0.02)'
           }}
@@ -188,12 +226,12 @@ export function HeaderRenderer({ personalInfo, template, isSidebar, previewMode 
           <img 
             src={personalInfo.photo} 
             alt={personalInfo.name}
-            className="w-full h-full object-cover"
+            className={`max-w-full max-h-full ${photoFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-auto object-contain'}`}
           />
         </div>
       )}
       
-      <div className="flex flex-col gap-2.5 text-left flex-1 pl-2">
+      <div className="flex flex-col gap-2 text-left flex-1 min-w-0">
         <h1 className="text-4xl font-bold break-words whitespace-pre-wrap" style={{ color: 'var(--resume-text)' }} {...editableProps('name')}>
           {personalInfo.name}
         </h1>

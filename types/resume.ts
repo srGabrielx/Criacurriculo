@@ -16,6 +16,9 @@ export interface PersonalInfo {
   headlineAccent: string;
   description: string;
   photo: string;
+  photoFit?: 'contain' | 'cover';
+  photoShape?: 'rounded' | 'circle' | 'square';
+  photoSize?: 'sm' | 'md' | 'lg';
   location: string;
   email: string;
   website: string;
